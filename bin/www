@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+var debug = require('debug')('pcled');
+var app = require('../app');
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+
+var serialport = require('serialport');
+var SerialPort = serialport.SerialPort;
+//var serialPort = new SerialPort('COM3', {
+//  baudrate: 9600,
+//  parser: serialport.parsers.readline('\n')
+//});
+//
+//serialPort.on('data', console.log.bind(console));
+
+app.set('port', process.env.PORT || 3000);
+
+io.on('connection', function (socket) {
+  socket.on('rgb', function (data) {
+    console.log(data.r + ' ' + data.g + ' ' + data.b + '\n');
+    serialPort.write(data.r + ' ' + data.g + ' ' + data.b + '\n');
+  });
+});
+
+server.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});
